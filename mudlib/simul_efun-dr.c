@@ -36,7 +36,7 @@ static void start_simul_efun_dr() {
 
     info = get_extra_wizinfo(0);
     if (!info[ATTRIBUTE_INDEX])
-	info[ATTRIBUTE_INDEX] = allocate_mapping(0, 1);
+	info[ATTRIBUTE_INDEX] = m_allocate(0, 1);
     if (find_call_out("clean_simul_efun_dr") < 0)
 	call_out("clean_simul_efun_dr", 900);
 }
@@ -61,7 +61,7 @@ varargs void add_attribute(string name, mixed value, object ob) {
     }
     attributes =
       (attributes = get_extra_wizinfo(0)[ATTRIBUTE_INDEX])[ob] ||
-      (attributes[ob] = allocate_mapping(1, 1));
+      (attributes[ob] = m_allocate(1, 1));
     if (member(attributes, quote(name))) {
 	attributes[quote(name)] = value;
 	return;
@@ -82,7 +82,7 @@ varargs void add_prot_attribute(string name, mixed value, object ob) {
     }
     efun::m_delete(
       ( (attributes = get_extra_wizinfo(0)[ATTRIBUTE_INDEX])[ob] ||
-        (attributes[ob] = allocate_mapping(1, 1)) )
+        (attributes[ob] = m_allocate(1, 1)) )
       , name)[quote(name)] = value;
 }
 
@@ -149,8 +149,8 @@ void dumpobjs(int start, int end) {
 	sprintf("Object                                  Location\n"));
     for (ob = debug_info(start); ob && start <= end;
 					ob = debug_info(2, ob), start++)
-       write_file("/OBJDUMP", sprintf("%-40s %s\n", file_name(ob),
-               (environment(ob)?file_name(environment(ob)):"None")));
+       write_file("/OBJDUMP", sprintf("%-40s %s\n", object_name(ob),
+               (environment(ob)?object_name(environment(ob)):"None")));
     write("Done.\n");
 }
 
@@ -188,7 +188,7 @@ varargs mixed get_attribute(mixed m, object ob) {
 	      attributes =
 		get_extra_wizinfo(0)
 		  [ATTRIBUTE_INDEX][m || previous_object()] ||
-		allocate_mapping(0,1)),
+		m_allocate(0,1)),
 	    m_values(attributes)
 	  }) ) ;
     if ( ( attributes =
@@ -272,7 +272,7 @@ int command(string str, object ob) {
 int remote_command() { return remote_command_flag; }
 
 int root(object ob) {
-    return member(file_name(ob || previous_object()), '#') == -1;
+    return member(object_name(ob || previous_object()), '#') == -1;
 }
 
 int searcha(mixed a, mixed d, int start) {
@@ -365,7 +365,7 @@ static private mapping destructing = ([]);
 varargs void destruct(object ob, int flag) {
     if (flag && !member(destructing, ob)) {
 	if (last_destruct != time())
-	    destructing = allocate_mapping(0,0);
+	    destructing = m_allocate(0,0);
 	destructing += ([ob]);
 	ob->destructor();
     }
